@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorGray">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerv_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible"
+            tools:visibility="visible">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/btnClubs"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_below="@+id/recyclerv_view"
+            android:adjustViewBounds="true"
+            android:background="@android:color/holo_orange_light"
+            android:paddingTop="15dp"
+            android:scaleType="fitCenter"
+            android:visibility="visible" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/btnAbout"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_below="@+id/btnClubs"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="15dp"
+            android:adjustViewBounds="true"
+            android:background="@color/ColorBlue"
+
+            android:scaleType="fitCenter"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/txtClubs"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_alignTop="@+id/btnClubs"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="Clubs (Under Development)"
+            android:textColor="@color/colorBlack"
+            android:textSize="17sp"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/txtAbout"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignTop="@+id/btnAbout"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="About App"
+            android:textColor="@color/colorWhite"
+            android:textSize="17sp"
+            android:visibility="visible" />
+
+    </RelativeLayout>
+</ScrollView>
