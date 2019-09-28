@@ -11,8 +11,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,9 +26,14 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/*
+ * Main activity that is loaded in with the app.  Holds the UI for the activty as well as methods
+ * relating to getting the JSON data through the Google API, as well as initializing the
+ * RecyclerViews
+ */
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";  //Used for debugging
+    private static final String TAG = "MainActivity";  //Tag used for debugging
     private ArrayList<String> mNames = new ArrayList<>();   //ArrayList of strings containing titles of Recycler Views
     private ArrayList<DataStructure> output;
     private ArrayList<Club> clubs;
@@ -39,12 +42,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        /*
+         * As the app loads up, initializes the UI of the main activity and starts the JSON data
+         * request in another thread
+         */
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recycleV = findViewById(R.id.recyclerv_view);
-        new JsonTask().execute("https://sheets.googleapis.com/v4/spreadsheets/1gsrdfheTKsqRw6hHrgnbBXP0EmYtFT0nwvfqaG0jDH0/values/Sheet1?key=AIzaSyCbZPiojjVUMac1ldoA6gYyYJ2MRMUQkyk");
+        String sheets_address = "https://sheets.googleapis.com/v4/spreadsheets/1gsrdfheTKsqRw6hHrgnbBXP0EmYtFT0nwvfqaG0jDH0/values/Sheet1?key=AIzaSyCbZPiojjVUMac1ldoA6gYyYJ2MRMUQkyk";
+        new JsonTask().execute(sheets_address);
         context = getApplicationContext();
 
+        //Opens "About App" activity
         TextView aboutUs = (TextView) findViewById(R.id.txtAbout);
         aboutUs.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,10 +68,14 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recycleV;
 
     private class JsonTask extends AsyncTask<String, String, String> {
-        //Android is built so that Network Requests (In our case, grabbing JSON data from Google)
-        //must be done on a separate processor thread than the one which handles the UI.
-        //I don't know a ton about threads, so using an Asynchronous Task is a relatively easy way
-        //to handle that.
+        /*
+         * Adds functionality to be able to request data over the internet.
+         * Three main parts: Pre-Execute, Do-in-Background, and Post-Execute
+         *
+         * Pre-Execute: First thing that is called when JsonTask.execute() is called.  Responsible
+         * in this case for showing the "Please wait" dialogue on screen while waiting for the
+         * request to go through
+         */
 
         protected void onPreExecute() {
             super.onPreExecute();
@@ -74,8 +87,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         protected String doInBackground(String... params) {
-            //I got this entire method from stackoverflow, so I will try to explain what I think
-            //it does.  I don't actually know for certain what it actually does, or how
+            /*
+             * The code to make a HTTP request.  In short, the app tries to connect to Google's
+             * API and reads the data it finds, plus a bunch of error checking on top of that.
+             */
 
             HttpURLConnection connection = null;
             BufferedReader reader = null;
@@ -95,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 StringBuffer buffer = new StringBuffer();
                 String line = "";
 
+                //On successful connection, reads data received and adds to to a string
                 while ((line = reader.readLine()) != null) {
                     buffer.append(line + "\n");
                     Log.d("Response: ", "> " + line); //Prints out input
@@ -122,41 +138,48 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String result) {  //This is basically the last thing that
-            //happens.  More or less, this is the 'result' of the previous actions./
-            //Flow chart looks like:
-            //onPreExecute (Parameters) > doInBackground (In Progress)> onPostExecute (Results)
+        protected void onPostExecute(String result) {
+            /*
+             * Last function in the AsyncTask.  Responsible for dismissing the progress dialogue and
+             * more importantly formatting the data from the Google API into a JSON object, and from
+             * there putting it into a DataStructure object that the app can more easily interact
+             * with.
+             */
             super.onPostExecute(result);
 
             if (pd.isShowing()) {
                 pd.dismiss();
             }
-            try { //Keep following here
+            try {
                 JSONObject parser;
 
-                ArrayList<DataStructure> parsed = new ArrayList<>();
+                output = new ArrayList<>();
 
                 try {
                     parser = new JSONObject(result);
 
                     JSONArray array = (JSONArray) parser.get("values");
-                    //Gets the indexes of all of the actual values.  Array looks like:
-                    //Values:
-                    //      0:
-                    //          Timestamp
-                    //          Quote
-                    //          Joke
-                    //          Other Announcements
-                    //      1:
-                    //          1/2/2019
-                    //          "Quote here"
-                    //          "Joke here"
-                    //          "Other announcements here"
-                    //      2:
-                    //          1/3/2019
-                    //          ...
-                    //      3:
-                    //          ...
+
+                    /*Gets the indexes of all of the actual values.  Array looks like:
+
+                    Values:
+                          0:
+                              Timestamp
+                              Quote
+                              Joke
+                              Other Announcements
+                          1:
+                              1/2/2019
+                              "Quote here"
+                              "Joke here"
+                              "Other announcements here"
+                          2:
+                              1/3/2019
+                              ...
+                          3:
+                              ...
+                    */
+
                     JSONArray headings = (JSONArray) array.get(0);
                     JSONArray row = (JSONArray) array.get(array.length() - 1);
 
@@ -165,26 +188,17 @@ public class MainActivity extends AppCompatActivity {
                     if (counter == 0){
                         for (int col = 1; col < headings.length(); col++) {
                             Log.e(TAG, "Reached initImageBitmaps.  array.length() = " + array.length());
-                            parsed.add(new DataStructure(headings.get(col).toString(), row.get(col).toString()));
+
+                            //Output is an ArrayList of DataStructures that contains the sheets data
+                            //after it's parsed
+                            output.add(new DataStructure(headings.get(col).toString(), row.get(col).toString()));
                         }
-                        output = parsed;
                         counter++;
                         Log.e(TAG, "Reached initImageBitmaps");
                         initImageBitmaps();
 
-                        ImageView imgAbout = findViewById(R.id.btnAbout);
-                        ImageView imgClubs = findViewById(R.id.btnClubs);
-                        TextView txtAbout = findViewById(R.id.txtAbout);
-                        TextView txtClubs = findViewById(R.id.txtClubs);
-
-                        imgAbout.setVisibility(View.VISIBLE);
-                        imgClubs.setVisibility(View.VISIBLE);
-                        txtAbout.setVisibility(View.VISIBLE);
-                        txtClubs.setVisibility(View.VISIBLE);
-
-                        //new JsonTask().execute("https://sheets.googleapis.com/v4/spreadsheets/11rBXcrnB4whRwVzxPMlRdQQyL2tGV9x2CKyaLoscpvg/values/Sheet1?key=AIzaSyCbZPiojjVUMac1ldoA6gYyYJ2MRMUQkyk");
                     }else{
-
+                        //For later development with Clubs functionality, can ignore
                         for (int col = 1; col < array.length(); col++){
                             headings = (JSONArray) array.get(col);
                             clubs.add(new Club(headings.get(col).toString(), headings.get(col + 1).toString(), headings.get(col + 2).toString(), headings.get(col + 3).toString(), headings.get(col + 4).toString(), headings.get(col + 5).toString()));
@@ -197,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) { //Typically means that the input wasn't a String in JSON format
                     Log.e(TAG, "JSON parse error");
                 }
-                Log.e(TAG, counter + "QRS\n" + parsed.toString());
+                Log.e(TAG, counter + "QRS\n" + output.toString());
 
             } catch (Exception e) {
                 System.out.println(e.toString());
@@ -209,10 +223,11 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<DataStructure> q = output;
         Log.d(TAG, "initImageBitmaps: preparing bitmaps.");
 
-        //Creates a recyclerview on the main activity
+        //Creates a RecyclerView on the main activity
 
         System.out.println(" QXR\n" + output);
 
+        //Populates the RecyclerViews
         for (int i = 0; i < q.size(); i++) {
             try {
                 mNames.add(q.get(i).getHeading());
@@ -225,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
+        //Defines the RecyclerViewAdapters
         Log.d(TAG, "initRecyclerView: init recyclerView.");
         RecyclerView recyclerView = findViewById(R.id.recyclerv_view);
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, output);
