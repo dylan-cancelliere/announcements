@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,11 +15,14 @@ import java.util.ArrayList;
 
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
+    /*
+     * Class to manage RecyclerViewAdapters.  Responsible for storing the name of each RecyclerView
+     * as well as defining on click functionality
+     */
     private static final String TAG = "RecyclerViewAdapter";
 
     private ArrayList<DataStructure> output;
     private Context mContext;
-    private int pos;
 
     public RecyclerViewAdapter(Context context, ArrayList<DataStructure> mOutput) {
         output = mOutput;
@@ -37,12 +39,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         Log.d(TAG, "onBindViewHolder: called.");
-        pos = position;
         holder.imageName.setText(output.get(position).getHeading());
 
     holder.parentLayout.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
+            //Opens the breakout activity when a RecyclerView is clicked on
             Log.d(TAG, "onClick: clicked on " + output.get(position).getHeading());
             Log.e("Tag", "" + position);
             openActivity(position);

@@ -1,13 +1,11 @@
 package com.example.dhhs;
 
-import java.util.ArrayList;
-
 public class DataStructure{
-    private String heading;
-    private String info;
+    private String heading;     //Heading or title of a column in the excel doc
+    private String info;        //Actual information related to the heading
 
     public DataStructure(String $heading, String $info){
-
+        //Constructor which populates the data structure when a new data structure is initialized
         heading = $heading;
         info = $info;
     }

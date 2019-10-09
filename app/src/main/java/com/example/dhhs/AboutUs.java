@@ -8,19 +8,20 @@ import android.view.View;
 import android.widget.Button;
 
 public class AboutUs extends AppCompatActivity {
+    //Defines on click behavior of the contact buttons at the bottomo of the page
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_us);
 
-        Button githuhbLogo = (Button)findViewById(R.id.github_link);
-        githuhbLogo.setOnClickListener(new View.OnClickListener() {
+        Button githubLogo = (Button)findViewById(R.id.github_link);
+        githubLogo.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                String url = "https://github.com/dylan-cancelliere";
+                String url = "https://github.com/dylan-cancelliere/morning-announcements";
 
                 Intent i = new Intent(Intent.ACTION_VIEW);
                 i.setData(Uri.parse(url));
